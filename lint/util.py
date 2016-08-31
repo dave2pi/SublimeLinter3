@@ -1076,7 +1076,7 @@ def combine_output(out, sep=''):
     return ANSI_COLOR_RE.sub('', output)
 
 
-def communicate(cmd, code=None, output_stream=STREAM_STDOUT, env=None):
+def communicate(cmd, code=None, output_stream=STREAM_STDOUT, env=None, cwd=None):
     """
     Return the result of sending code via stdin to an executable.
 
@@ -1101,7 +1101,7 @@ def communicate(cmd, code=None, output_stream=STREAM_STDOUT, env=None):
     else:
         stdout = stderr = None
 
-    out = popen(cmd, stdout=stdout, stderr=stderr, output_stream=output_stream, extra_env=env)
+    out = popen(cmd, stdout=stdout, stderr=stderr, output_stream=output_stream, extra_env=env, cwd=cwd)
 
     if out is not None:
         if code is not None:
@@ -1193,7 +1193,7 @@ def tmpfile(cmd, code, filename, suffix='', output_stream=STREAM_STDOUT, env=Non
         else:
             cmd.append(path)
 
-        return communicate(cmd, output_stream=output_stream, env=env)
+        return communicate(cmd, output_stream=output_stream, env=env, cwd=tempdir)
     finally:
         os.remove(path)
 
@@ -1235,7 +1235,7 @@ def tmpdir(cmd, files, filename, code, output_stream=STREAM_STDOUT, env=None):
                 shutil.copyfile(f, target)
 
         os.chdir(d)
-        out = communicate(cmd, output_stream=output_stream, env=env)
+        out = communicate(cmd, output_stream=output_stream, env=env, cwd=tempdir)
 
         if out:
             # filter results from build to just this filename
@@ -1248,7 +1248,7 @@ def tmpdir(cmd, files, filename, code, output_stream=STREAM_STDOUT, env=None):
     return out or ''
 
 
-def popen(cmd, stdout=None, stderr=None, output_stream=STREAM_BOTH, env=None, extra_env=None):
+def popen(cmd, stdout=None, stderr=None, output_stream=STREAM_BOTH, env=None, extra_env=None, cwd=None):
     """Open a pipe to an external process and return a Popen object."""
 
     info = None
@@ -1281,7 +1281,8 @@ def popen(cmd, stdout=None, stderr=None, output_stream=STREAM_BOTH, env=None, ex
             stdout=stdout,
             stderr=stderr,
             startupinfo=info,
-            env=env
+            env=env,
+            cwd=cwd
         )
     except Exception as err:
         from . import persist

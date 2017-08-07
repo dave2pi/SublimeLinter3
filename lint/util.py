@@ -1188,8 +1188,10 @@ def tmpfile(cmd, code, filename, suffix='', output_stream=STREAM_STDOUT, env=Non
 
         cmd = list(cmd)
 
-        if '@' in cmd:
-            cmd[cmd.index('@')] = path
+        for i in range(len(cmd)):
+            if '@' in cmd[i]:
+                cmd[i] = cmd[i].replace('@', path)
+                break
         else:
             cmd.append(path)
 
